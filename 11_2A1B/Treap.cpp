@@ -1,41 +1,81 @@
-// array c is eventually equal to the position of the suffixes in the suffix array
-// don't add another '$' to the string
-int sa[400007], c[400007], sa_new[400007], c_new[400007], cnt[400007], pos[400007], lcp[400007];
-pair<char, int> P[400007];
-void calc_suffix_array(string s) {
-	s += '$';
-	int n = s.size();
-	for (int i = 0; i < n; i++) P[i] = {s[i], i};
-	sort(P, P + n);
-	for (int i = 0; i < n; i++) sa[i] = P[i].second;
-	c[sa[0]] = 0;
-	for (int i = 1; i < n; i++) c[sa[i]] = c[sa[i - 1]] + (P[i].first > P[i - 1].first ? 1 : 0);
-	int k = 1;
-	while (k < n) {
-		for (int i = 0; i < n; i++) sa[i] = (sa[i] - k + n) % n;
-		for (int i = 0; i < n; i++) cnt[i] = 0;
-		for (int i = 0; i < n; i++) cnt[c[i]]++;
-		pos[0] = cnt[0] - 1;
-		for (int i = 1; i < n; i++) pos[i] = pos[i - 1] + cnt[i];
-		for (int i = n - 1; i >= 0; i--) sa_new[pos[c[sa[i]]]--] = sa[i];
-		for (int i = 0; i < n; i++) sa[i] = sa_new[i];
-		c_new[sa[0]] = 0;
-		for (int i = 1; i < n; i++) {
-			c_new[sa[i]] = c_new[sa[i - 1]];
-			pair<int, int> prev = {c[sa[i - 1]], c[(sa[i - 1] + k) % n]};
-			pair<int, int> now = {c[sa[i]], c[(sa[i] + k) % n]};
-			if (now > prev) c_new[sa[i]]++;
-		}
-		for (int i = 0; i < n; i++) c[i] = c_new[i];
-		k *= 2;
+// Zerojudge a063: subsequence reversal
+struct Treap{
+	Treap *lc, *rc;
+	int pri, sz, val;
+	bool tag;
+	Treap (int x) {
+		lc = rc = NULL;
+		pri = rand();
+		sz = 1;
+		val = x;
+		tag = 0;
+	}
+};
+inline int size(Treap* t) {
+	return t ? t->sz : 0;
+}
+inline void pull(Treap* t) {
+	t->sz = size(t->lc) + 1 + size(t->rc);
+}
+void push(Treap* t) {
+	if (t->tag) {
+		swap(t->lc, t->rc);
+		if (t->lc) t->lc->tag = !t->lc->tag;
+		if (t->rc) t->rc->tag = !t->rc->tag;
+		t->tag = 0;
 	}
 }
-void calc_lcp_array(string s) {
-	int n = s.size(), k = 0;
-	for (int i = 0; i < n; i++) {
-		int j = sa[c[i] - 1];
-		while (i + k < n && j + k < n && s[i + k] == s[j + k]) k++;
-		lcp[c[i] - 1] = k;
-		k = max(k - 1, 0ll);
+Treap* merge(Treap* a, Treap* b) {
+	if (!a || !b) return a ? a : b;
+	if (a->pri > b->pri) {
+		push(a);
+		a->rc = merge(a->rc, b);
+		pull(a);
+		return a;
 	}
+	else {
+		push(b);
+		b->lc = merge(a, b->lc);
+		pull(b);
+		return b;
+	}
+}
+void split(Treap* t, int k, Treap *&a, Treap *&b) {
+	if (!t) a = b = NULL;
+	else {
+		push(t);
+		if(size(t->lc) + 1 <= k) {
+			a = t;
+			split(t->rc, k - size(t->lc) - 1, a->rc, b);
+			pull(a);
+		}
+		else {
+			b = t;
+			split(t->lc, k, a, b->lc);
+			pull(b);
+		}
+	}
+}
+void output(Treap* t) {
+	push(t);
+	if (t->lc) output(t->lc);
+	cout<<t->val<<" ";
+	if (t->rc) output(t->rc);
+}
+main()
+{
+	ios::sync_with_stdio(0); cin.tie(0);
+	int n, m; cin>>n>>m;
+	Treap* t = NULL;
+	for (int i = 1; i <= n; i++) t = merge(t, new Treap(i));
+	while (m--) {
+		int l, r; cin>>l>>r;
+		Treap *tl, *tr;
+		split(t, l - 1, tl, t);
+		split(t, r - l + 1, t, tr);
+		t->tag = !t->tag;
+		t = merge(merge(tl, t), tr);
+	}
+	output(t);
+	cout<<'\n';
 }
