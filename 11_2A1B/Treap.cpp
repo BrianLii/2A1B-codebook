@@ -5,10 +5,7 @@ struct Treap{
 	bool tag;
 	Treap (int x) {
 		lc = rc = NULL;
-		pri = rand();
-		sz = 1;
-		val = x;
-		tag = 0;
+		pri = rand(), sz = 1, val = x, tag = 0;
 	}
 };
 inline int size(Treap* t) {
@@ -55,27 +52,4 @@ void split(Treap* t, int k, Treap *&a, Treap *&b) {
 			pull(b);
 		}
 	}
-}
-void output(Treap* t) {
-	push(t);
-	if (t->lc) output(t->lc);
-	cout<<t->val<<" ";
-	if (t->rc) output(t->rc);
-}
-main()
-{
-	ios::sync_with_stdio(0); cin.tie(0);
-	int n, m; cin>>n>>m;
-	Treap* t = NULL;
-	for (int i = 1; i <= n; i++) t = merge(t, new Treap(i));
-	while (m--) {
-		int l, r; cin>>l>>r;
-		Treap *tl, *tr;
-		split(t, l - 1, tl, t);
-		split(t, r - l + 1, t, tr);
-		t->tag = !t->tag;
-		t = merge(merge(tl, t), tr);
-	}
-	output(t);
-	cout<<'\n';
 }
