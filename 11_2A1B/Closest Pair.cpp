@@ -20,13 +20,7 @@ double solve(int l, int r) {
 	}
 	return d;
 }
-main()
-{
-	ios::sync_with_stdio(0); cin.tie(0);
-	int n;
-	while (cin>>n) {
-		for (int i = 1; i <= n; i++) cin>>p[i].first>>p[i].second;
+main(){
 		sort(p + 1, p + n + 1);
-		cout<<fixed<<setprecision(6)<<solve(1, n)<<'\n';
-	}
+		solve(1, n);
 }
