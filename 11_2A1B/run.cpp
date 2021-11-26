@@ -1,6 +1,4 @@
-if [ -f "a.out" ]; then
-    rm a.out
-fi
+rm -f a.out
 g++ -std=c++11 -O2 -Wextra -Wall $1 
 
 if [ -f "a.out" ]; then
