@@ -1,5 +1,9 @@
+#include<bits/stdc++.h>
+#define FILL(x, y) memset(x, y, sizeof(x))
+using namespace std; 
+
 struct suffix_array {
-  int box[MAXN], tp[MAXN], m;
+  int box[100007], tp[100007], m;
   bool not_equ(int a, int b, int k, int n) {
     return ra[a] != ra[b] || a + k >= n ||
       b + k >= n || ra[a + k] != ra[b + k];
@@ -35,7 +39,7 @@ struct suffix_array {
       he[ra[j]] = k, k = max(0, k - 1);
     }
   }
-  int sa[MAXN], ra[MAXN], he[MAXN];
+  int sa[100007], ra[100007], he[100007];
   void build(string s) {
     FILL(sa, 0), FILL(ra, 0), FILL(he, 0);
     FILL(box, 0), FILL(tp, 0), m = 256;
@@ -43,3 +47,12 @@ struct suffix_array {
     make_he(s, s.size());
   }
 };
+main()
+{
+	string s; cin>>s;
+	suffix_array saa;
+	saa.build(s);
+	for (int i = 0; i <= s.length(); i++) {
+		cout<<i<<" "<<saa.sa[i]<<" "<<saa.ra[i]<<" "<<saa.he[i]<<endl;
+	}
+}
